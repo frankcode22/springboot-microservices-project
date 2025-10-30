@@ -8,8 +8,7 @@ import jakarta.validation.constraints.Size;
  * DTOs for authentication requests and responses
  */
 
-// ==================== Login Request ====================
-class LoginRequest {
+public class LoginRequest {
     @NotBlank(message = "Username is required")
     private String username;
     

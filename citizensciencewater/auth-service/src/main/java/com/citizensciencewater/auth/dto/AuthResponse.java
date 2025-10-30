@@ -1,7 +1,7 @@
 package com.citizensciencewater.auth.dto;
 
 //==================== Auth Response ====================
-class AuthResponse {
+public class AuthResponse {
 private String token;
 private String type = "Bearer";
 private String username;
