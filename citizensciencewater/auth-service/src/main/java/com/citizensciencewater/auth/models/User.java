@@ -2,6 +2,7 @@ package com.citizensciencewater.auth.models;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.UUID; // New import needed
 
 /**
  * Entity class representing a user in the system.
@@ -15,6 +16,10 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
+    // RETAIN: nullable = false, unique = true, length = 100
+    @Column(name = "citizen_id", nullable = false, unique = true, length = 100)
+    private String citizenId;
+
     @Column(nullable = false, unique = true)
     private String username;
     
@@ -50,7 +55,33 @@ public class User {
         this.fullName = fullName;
     }
     
-    // Getters and Setters
+    // ===================================
+    // JPA Lifecycle Methods
+    // ===================================
+
+    @PrePersist
+    protected void onCreate() {
+        // Sets timestamps before the first save
+        createdAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
+
+        // FIX: Provide a temporary, unique non-null ID to satisfy the database 
+        // constraint during the initial INSERT. This ID will be overwritten 
+        // by the Auth Service's second save.
+        if (this.citizenId == null) {
+            this.citizenId = "TEMP-" + UUID.randomUUID().toString();
+        }
+    }
+    
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
+    
+    // ===================================
+    // Getters and Setters (Public setCitizenId is required by AuthService)
+    // ===================================
+
     public Long getId() {
         return id;
     }
@@ -59,6 +90,14 @@ public class User {
         this.id = id;
     }
     
+    public String getCitizenId() {
+        return citizenId;
+    }
+    
+    public void setCitizenId(String citizenId) {
+        this.citizenId = citizenId;
+    }
+
     public String getUsername() {
         return username;
     }
@@ -123,21 +162,11 @@ public class User {
         isActive = active;
     }
     
-    @PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
-    }
-    
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
-    }
-    
     @Override
     public String toString() {
         return "User{" +
                 "id=" + id +
+                ", citizenId='" + citizenId + '\'' +
                 ", username='" + username + '\'' +
                 ", email='" + email + '\'' +
                 ", fullName='" + fullName + '\'' +

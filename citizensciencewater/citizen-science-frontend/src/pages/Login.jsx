@@ -7,6 +7,8 @@ import { useNavigate } from 'react-router-dom';
 // Base URL for the Spring Boot Auth Microservice, accessible via the API Gateway
 const API_BASE_URL = 'http://localhost:8083/api/auth'; 
 
+const API_GATEWAY_URL = 'http://localhost:8090/gateway/auth'; 
+
 function Login() {
   const navigate = useNavigate();
   // State to toggle between 'login' and 'register' view
@@ -42,7 +44,7 @@ function Login() {
   const handleAuthSuccess = (response) => {
     // Store tokens/user data securely (e.g., in localStorage or a state management solution)
     localStorage.setItem('accessToken', response.token);
-    localStorage.setItem('user', JSON.stringify({ username: response.username, roles: response.roles }));
+    localStorage.setItem('user', JSON.stringify({ username: response.username,citizenId: response.citizenId, roles: response.roles }));
     
     setLoading(false);
     clearFormAndMessages();
@@ -60,7 +62,11 @@ function Login() {
     setMessage(null);
     
     try {
-      const response = await axios.post(`${API_BASE_URL}/login`, {
+      API_GATEWAY_URL
+       const response = await axios.post(`${API_BASE_URL}/login`, {
+
+      // const response = await axios.post(`${API_GATEWAY_URL}/login`, {
+
         username: formData.username,
         password: formData.password
       });
@@ -87,7 +93,10 @@ function Login() {
     }
     
     try {
-      const response = await axios.post(`${API_BASE_URL}/register`, {
+      API_GATEWAY_URL
+      // const response = await axios.post(`${API_BASE_URL}/register`, {
+      const response = await axios.post(`${API_GATEWAY_URL}/register`, {
+
         username: formData.username,
         password: formData.password,
         email: formData.email,

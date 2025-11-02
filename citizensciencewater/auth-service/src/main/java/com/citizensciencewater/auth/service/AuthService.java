@@ -38,8 +38,7 @@ public class AuthService {
     
     /**
      * Register a new user.
-     * 
-     * @param registerRequest the registration details
+     * * @param registerRequest the registration details
      * @return AuthResponse with JWT token and user information
      * @throws IllegalArgumentException if username or email already exists
      */
@@ -55,7 +54,7 @@ public class AuthService {
             throw new IllegalArgumentException("Email is already registered");
         }
         
-        // Create new user
+        // 1. Create new user entity with basic info
         User user = new User();
         user.setUsername(registerRequest.getUsername());
         user.setEmail(registerRequest.getEmail());
@@ -64,22 +63,30 @@ public class AuthService {
         user.setRole("CITIZEN"); // Default role
         user.setActive(true);
         
-        // Save user
+        // 2. Initial Save: Persist user to get the auto-generated 'id'.
+        // The @PrePersist sets the timestamps here.
         user = userRepository.save(user);
         
-        logger.info("New user registered: {}", user.getUsername());
+        // 3. Generate Citizen ID: Use the auto-generated 'id' to create the unique ID.
+        // Format: C-001, C-010, C-123
+        String citizenId = String.format("C-%03d", user.getId());
+        user.setCitizenId(citizenId);
+        
+        // 4. Second Save: Persist the user again to save the new citizenId value.
+        user = userRepository.save(user);
+
+        logger.info("New user registered: {} with Citizen ID: {}", user.getUsername(), user.getCitizenId());
         
         // Generate JWT token
         String token = jwtService.generateToken(user.getUsername(), user.getRole(), user.getId());
         
-        // Build response
-        return new AuthResponse(token, user.getUsername(), user.getEmail(), user.getRole());
+        // Build response, now including citizenId
+        return new AuthResponse(token, user.getUsername(), user.getEmail(), user.getRole(), user.getCitizenId());
     }
     
     /**
      * Authenticate user and generate JWT token.
-     * 
-     * @param loginRequest the login credentials
+     * * @param loginRequest the login credentials
      * @return AuthResponse with JWT token and user information
      * @throws IllegalArgumentException if credentials are invalid
      */
@@ -104,8 +111,8 @@ public class AuthService {
         // Generate JWT token
         String token = jwtService.generateToken(user.getUsername(), user.getRole(), user.getId());
         
-        // Build response
-        return new AuthResponse(token, user.getUsername(), user.getEmail(), user.getRole());
+        // Build response, now including citizenId
+        return new AuthResponse(token, user.getUsername(), user.getEmail(), user.getRole(), user.getCitizenId());
     }
     
     
@@ -129,19 +136,17 @@ public class AuthService {
                 .orElseThrow(() -> new IllegalArgumentException("User not found for token"));
         
         // 4. Generate a new JWT token
-        // Assuming your current setup generates a token that serves as both access/refresh
         String newToken = jwtService.generateToken(user.getUsername(), user.getRole(), user.getId());
         
         logger.info("Token successfully refreshed for user: {}", user.getUsername());
         
-        // 5. Build response
-        return new AuthResponse(newToken, user.getUsername(), user.getEmail(), user.getRole());
+        // 5. Build response, now including citizenId
+        return new AuthResponse(newToken, user.getUsername(), user.getEmail(), user.getRole(), user.getCitizenId());
     }
     
     /**
      * Validate JWT token.
-     * 
-     * @param token the JWT token
+     * * @param token the JWT token
      * @return true if token is valid, false otherwise
      */
     public boolean validateToken(String token) {
@@ -150,8 +155,7 @@ public class AuthService {
     
     /**
      * Get user information from JWT token.
-     * 
-     * @param token the JWT token
+     * * @param token the JWT token
      * @return Map containing user information
      * @throws IllegalArgumentException if token is invalid
      */
@@ -169,6 +173,7 @@ public class AuthService {
         
         Map<String, Object> userInfo = new HashMap<>();
         userInfo.put("id", user.getId());
+        userInfo.put("citizenId", user.getCitizenId()); // Citizen ID included here
         userInfo.put("username", user.getUsername());
         userInfo.put("email", user.getEmail());
         userInfo.put("fullName", user.getFullName());
@@ -181,8 +186,7 @@ public class AuthService {
     
     /**
      * Check if username is available.
-     * 
-     * @param username the username to check
+     * * @param username the username to check
      * @return true if available, false otherwise
      */
     public boolean isUsernameAvailable(String username) {
@@ -191,8 +195,7 @@ public class AuthService {
     
     /**
      * Check if email is available.
-     * 
-     * @param email the email to check
+     * * @param email the email to check
      * @return true if available, false otherwise
      */
     public boolean isEmailAvailable(String email) {

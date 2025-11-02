@@ -8,6 +8,7 @@ import CommunityDashboard from './pages/CommunityDashboard.jsx'; // Needs to be 
 // You'll need to create the component for submitting data
 import SubmitObservation from './pages/SubmitObservation.jsx'; 
 import Rewards from './pages/Rewards.jsx'; 
+import CitizenRewarder from './pages/CitizenRewarder.jsx';
 
 function App() {
   return (
@@ -25,6 +26,8 @@ function App() {
           
           {/* Data Submission Page */}
           <Route path="/submit-observation" element={<SubmitObservation />} />
+
+           <Route path="/citizen-rewarder" element={<CitizenRewarder />} /> 
           
           {/* Rewards/Leaderboard Page */}
           <Route path="/rewards" element={<Rewards />} /> 

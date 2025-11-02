@@ -10,6 +10,7 @@ const sidebarLinks = [
   { name: 'Dashboard Hub', path: '/dashboard-hub', icon: Home },
   { name: 'My Community Dashboard', path: '/dashboard/MyAuthority', icon: Users }, // Replace 'MyAuthority' with a dynamic value later
   { name: 'Submit Observation', path: '/submit-observation', icon: Upload },
+   { name: 'Reward and Points', path: '/citizen-rewarder', icon: Zap },
   { name: 'Rewards & Leaderboard', path: '/rewards', icon: Zap },
 ];
 

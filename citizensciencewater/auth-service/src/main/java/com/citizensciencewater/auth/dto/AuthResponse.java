@@ -7,12 +7,22 @@ private String type = "Bearer";
 private String username;
 private String email;
 private String role;
+private String citizenId; // NEW FIELD: To return the unique citizen identifier
 
 public AuthResponse(String token, String username, String email, String role) {
    this.token = token;
    this.username = username;
    this.email = email;
    this.role = role;
+}
+
+// NEW CONSTRUCTOR: Now accepts citizenId
+public AuthResponse(String token, String username, String email, String role, String citizenId) {
+   this.token = token;
+   this.username = username;
+   this.email = email;
+   this.role = role;
+   this.citizenId = citizenId;
 }
 
 public String getToken() {
@@ -53,5 +63,15 @@ public String getRole() {
 
 public void setRole(String role) {
    this.role = role;
+}
+
+// NEW GETTER
+public String getCitizenId() {
+   return citizenId;
+}
+
+// NEW SETTER
+public void setCitizenId(String citizenId) {
+   this.citizenId = citizenId;
 }
 }
